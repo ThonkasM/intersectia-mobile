@@ -1,20 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useRef, useState } from 'react';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useTabBarClearance } from '@/components/floating-tab-bar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { TopicsSheet } from '@/components/topics-sheet';
 import { API_URL } from '@/constants/config';
 import { Radius, Spacing } from '@/constants/theme';
 import { useChat } from '@/hooks/use-chat';
@@ -40,7 +43,9 @@ const sessionStore = createMemoryStore();
 
 export default function AssistantScreen() {
   const theme = useTheme();
+  const tabBarClearance = useTabBarClearance();
   const listRef = useRef<FlatList<ChatMessage>>(null);
+  const topicsSheetRef = useRef<BottomSheetModal>(null);
   const [sessionId, setSessionId] = useState(() => resolveSessionId(sessionStore, CHAT_SESSION_KEY));
   const [input, setInput] = useState('');
   const { messages, topics, loading, send, reset } = useChat({
@@ -50,9 +55,30 @@ export default function AssistantScreen() {
     errorText: ERROR_TEXT,
   });
 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
   const scrollToEnd = useCallback(() => {
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   }, []);
+
+  useEffect(() => {
+    const show = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setKeyboardVisible(true),
+    );
+    const hide = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardVisible(false),
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (keyboardVisible) scrollToEnd();
+  }, [keyboardVisible, scrollToEnd]);
 
   const onSend = useCallback(
     (value: string) => {
@@ -70,7 +96,19 @@ export default function AssistantScreen() {
     setSessionId(createSessionId());
   }, [reset]);
 
-  const suggestions = messages.length <= 1 ? topics.slice(0, 6) : [];
+  const openTopics = useCallback(() => {
+    topicsSheetRef.current?.present();
+  }, []);
+
+  const onSelectTopic = useCallback(
+    (titulo: string) => {
+      topicsSheetRef.current?.dismiss();
+      onSend(titulo);
+    },
+    [onSend],
+  );
+
+  const showEmptyState = messages.length <= 1 && topics.length > 0;
 
   return (
     <ThemedView style={styles.root}>
@@ -82,27 +120,40 @@ export default function AssistantScreen() {
               IoT · Vehículos autónomos · Demo
             </ThemedText>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Reiniciar conversación"
-            onPress={onReset}
-            style={({ pressed }) => [
-              styles.iconButton,
-              { borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
-            ]}>
-            <Ionicons name="refresh-outline" size={18} color={theme.text} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ver temas"
+              onPress={openTopics}
+              style={({ pressed }) => [
+                styles.iconButton,
+                { borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
+              ]}>
+              <Ionicons name="albums-outline" size={18} color={theme.text} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Reiniciar conversación"
+              onPress={onReset}
+              style={({ pressed }) => [
+                styles.iconButton,
+                { borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
+              ]}>
+              <Ionicons name="refresh-outline" size={18} color={theme.text} />
+            </Pressable>
+          </View>
         </View>
 
         <KeyboardAvoidingView
           style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+          keyboardVerticalOffset={0}>
           <FlatList
             ref={listRef}
             data={messages}
             renderItem={({ item }) => <Bubble message={item} />}
             keyExtractor={(_, index) => String(index)}
+            style={styles.flex}
             contentContainerStyle={styles.list}
             onContentSizeChange={scrollToEnd}
             keyboardShouldPersistTaps="handled"
@@ -121,39 +172,41 @@ export default function AssistantScreen() {
                     </ThemedText>
                   </View>
                 </View>
+              ) : showEmptyState ? (
+                <View style={styles.emptyState}>
+                  <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
+                    Elegí un tema para empezar o escribí tu propia pregunta.
+                  </ThemedText>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Ver temas"
+                    onPress={openTopics}
+                    style={({ pressed }) => [
+                      styles.emptyButton,
+                      {
+                        borderColor: theme.accent,
+                        backgroundColor: theme.surface,
+                        opacity: pressed ? 0.7 : 1,
+                      },
+                    ]}>
+                    <Ionicons name="albums-outline" size={16} color={theme.accentText} />
+                    <ThemedText type="smallBold" themeColor="accentText">
+                      Ver temas
+                    </ThemedText>
+                  </Pressable>
+                </View>
               ) : null
             }
           />
 
-          {suggestions.length > 0 ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              style={[styles.suggestions, { borderTopColor: theme.border }]}
-              contentContainerStyle={styles.suggestionsContent}>
-              {suggestions.map((topic) => (
-                <Pressable
-                  key={topic.slug}
-                  accessibilityRole="button"
-                  onPress={() => onSend(topic.titulo)}
-                  style={({ pressed }) => [
-                    styles.chip,
-                    {
-                      borderColor: theme.border,
-                      backgroundColor: theme.surface,
-                      opacity: pressed ? 0.7 : 1,
-                    },
-                  ]}>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {topic.titulo}
-                  </ThemedText>
-                </Pressable>
-              ))}
-            </ScrollView>
-          ) : null}
-
-          <View style={[styles.composer, { borderTopColor: theme.border }]}>
+          <View
+            style={[
+              styles.composer,
+              {
+                borderTopColor: theme.border,
+                marginBottom: Platform.OS === 'ios' && keyboardVisible ? 0 : tabBarClearance,
+              },
+            ]}>
             <TextInput
               value={input}
               onChangeText={setInput}
@@ -190,6 +243,8 @@ export default function AssistantScreen() {
             </Pressable>
           </View>
         </KeyboardAvoidingView>
+
+        <TopicsSheet ref={topicsSheetRef} topics={topics} onSelect={onSelectTopic} />
       </SafeAreaView>
     </ThemedView>
   );
@@ -241,6 +296,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.half,
   },
+  headerActions: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
   iconButton: {
     width: 36,
     height: 36,
@@ -278,19 +337,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  suggestions: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  suggestionsContent: {
-    gap: Spacing.two,
+  emptyState: {
+    alignItems: 'center',
+    gap: Spacing.three,
+    paddingTop: Spacing.five,
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
   },
-  chip: {
+  emptyText: {
+    textAlign: 'center',
+  },
+  emptyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one + Spacing.half,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
   },
   composer: {
     flexDirection: 'row',

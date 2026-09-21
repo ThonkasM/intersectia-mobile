@@ -4,10 +4,19 @@ App de Expo (SDK 57) con dos pantallas:
 
 - **Inicio** — página de bienvenida que reúne el contenido de la landing de `intersectia-frontend`
   (hero, qué es IoT, vehículos autónomos, relación IoT↔AV, caso de estudio, cómo funciona la demo, equipo).
-- **Asistente** — chatbot que consume el mismo endpoint que la web: `POST /ai/chat`.
+- **Asistente** — chatbot que consume el mismo endpoint que la web: `POST /ai/chat`. Los temas
+  sugeridos (`GET /ai/chat/topics`) se eligen en una bottom sheet scrolleable agrupada por categoría
+  (`@gorhom/bottom-sheet`).
 
 Stack: Expo Router (tabs) + TypeScript. No hay lógica de simulación aquí; la app solo muestra
 contenido y conversa con el backend NestJS.
+
+Navegación:
+
+- **iOS** — `NativeTabs` (`expo-router/unstable-native-tabs`): tab bar nativa del sistema, con Liquid
+  Glass en iOS 26+.
+- **Android / web** — `Tabs` con una tab bar flotante custom (`src/components/floating-tab-bar.tsx`):
+  pill absoluta con indicador animado (Reanimated).
 
 ## Requisitos
 
@@ -86,8 +95,49 @@ Notas:
 - `expo prebuild` limpia `android/` por defecto; usá `--no-clean` (ya incluido en el script) para
   conservar ediciones manuales.
 
+## Build local para iOS
+
+Requiere macOS con **Xcode 26+** (en Xcode 27 / SDK iOS 27 el ciclo de vida `UIScene` es obligatorio).
+
+```bash
+npm run prebuild:ios   # genera ios/ (aplica el scene lifecycle)
+npm run ios            # prebuild + pod install + compila + instala + lanza
+```
+
+`app.json` habilita `ios.enableSceneSupport` vía `expo-build-properties`, que hace que `AppDelegate`
+adopte `ExpoReactNativeFactoryProvider` y agrega `UIApplicationSceneManifest` a `Info.plist`
+(apunta a `EXExpoAppSceneDelegate`). Sin esto, con Xcode 27 la app se instala pero **no arranca**:
+`Application failed to launch: UIScene life cycle is required for apps built with this SDK`.
+
+### Firma (simulador vs device)
+
+- **Simulador:** no hace falta firmar. El plugin `plugins/with-ios-signing.js` desactiva la firma
+  solo para `sdk=iphonesimulator*`, así que `npx expo run:ios` no toca el keychain ni se queda colgado
+  en el prompt "codesign wants to access key".
+- **iPhone físico:** requiere Apple ID. `ios.appleTeamId` está en `7MWYA8BMK6` (Personal Team gratis):
+  perfil de 7 días, ~3 devices, sin Push/iCloud/App Groups. No uses el team company `PSL2B979R5`.
+- **Primer build a device (una vez):** el CLI de Expo no pasa `-allowProvisioningUpdates` cuando ya hay
+  team en el proyecto, así que `npx expo run:ios --device` falla con "No profiles … were found". Hacé
+  el primero a mano y luego el CLI funciona:
+
+  ```bash
+  xcodebuild -workspace ios/IntersectIA.xcworkspace -scheme IntersectIA -configuration Debug \
+    -destination 'id=<UDID-del-iPhone>' \
+    -allowProvisioningUpdates -allowProvisioningDeviceRegistration \
+    DEVELOPMENT_TEAM=7MWYA8BMK6 build
+  ```
+
+  Eso crea el certificado + perfil y registra el device (aceptá "Always Allow"). Cuando el perfil
+  expire (7 días), repetí ese build con el flag.
+- `npx expo run:ios --device` (con el iPhone conectado) para device; `npx expo run:ios` para simulador.
+
+Si ya tenías un `ios/` generado antes de activar la opción, regeneralo: `rm -rf ios && npm run prebuild:ios`.
+`expo-build-properties` (~57.0.21) + `expo` ≥ 57.0.23 son necesarios; en SDK 58 la opción es no-op.
+
 ## Verificación hecha
 
 - `npx expo-doctor` → 21/21 checks OK.
 - `npm run typecheck` → sin errores.
-- `./gradlew assembleDebug` y `assembleRelease` → `BUILD SUCCESSFUL` con JDK 17 + SDK 36.
+- Android (JDK 17 + SDK 36): `./gradlew assembleDebug` y `assembleRelease` → `BUILD SUCCESSFUL`.
+- iOS (Xcode 27, simulador iOS 27): build Debug OK y la app **arranca y renderiza** tras
+  `ios.enableSceneSupport`.

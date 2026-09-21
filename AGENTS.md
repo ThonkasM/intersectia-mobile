@@ -16,7 +16,8 @@ Two tab routes:
   (port of `../intersectia-frontend/components/sections/*`). The frontend remains the canonical copy.
 - `src/app/asistente.tsx` — chatbot UI. Uses `useChat` (`src/hooks/use-chat.ts`), backed by the
   portable `src/lib/chat/` client (`client.ts`, `session.ts`, `types.ts`) — same design as
-  `intersectia-frontend/lib/chat`, so the two can be diffed side by side.
+  `intersectia-frontend/lib/chat`, so the two can be diffed side by side. Topic suggestions live in a
+  bottom sheet (`src/components/topics-sheet.tsx`), grouped by `categoria` and scrollable.
 
 ## Commands
 
@@ -31,10 +32,54 @@ Two tab routes:
 
 - `EXPO_PUBLIC_API_URL` (see `.env.example`), read as `API_URL` in `src/constants/config.ts`. The app
   POSTs to `${API_URL}/ai/chat` with `{ message, sessionId }` → `{ answer }`, and GETs
-  `${API_URL}/ai/chat/topics` for the suggestion chips.
+  `${API_URL}/ai/chat/topics` for the topics sheet.
 - Default when unset: Android `http://10.0.2.2:3000` (emulator → host), else `http://localhost:3000`.
 - Cleartext HTTP is enabled in `app.json` via `expo-build-properties` for local dev; disable for
   production HTTPS.
+- `ios.enableSceneSupport: true` (same plugin) is **required** to launch on iOS 27 / Xcode 27 (UIKit
+  scene lifecycle). It rewrites `AppDelegate.swift` and adds `UIApplicationSceneManifest` at
+  prebuild. Do not remove it while on SDK 57; it is a no-op on SDK 58+.
+
+## iOS builds & signing
+
+- `plugins/with-ios-signing.js` (applied on every prebuild) sets in the generated Xcode project:
+  - `CODE_SIGN_STYLE = Automatic` (needed for device signing; the raw template omits it).
+  - `CODE_SIGNING_ALLOWED/REQUIRED[sdk=iphonesimulator*] = NO` and `CODE_SIGN_IDENTITY[sdk=iphonesimulator*] = ""`,
+    so `npx expo run:ios` (simulator) never touches the keychain and cannot hang on a
+    "codesign wants to access key" prompt. SDK-conditional, so device builds are unaffected.
+- **Device:** `ios.appleTeamId` is `7MWYA8BMK6` (Personal Team, free): 7-day profiles, ~3 devices, no
+  Push/iCloud/App Groups. Do NOT reuse the company team `PSL2B979R5` (HO-MMY APP S.R.L., homy).
+- **Expo CLI quirk (important):** `ensureDeviceIsCodeSignedForDeploymentAsync` returns `null` when a
+  team is already in the project (which is exactly what `appleTeamId` does), so it does NOT pass
+  `-allowProvisioningUpdates` and the first device build fails with "No profiles … were found".
+  Workaround: do the *first* device build once with
+  `xcodebuild … -destination 'id=<UDID>' -allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=7MWYA8BMK6 build`
+  (or press Run in Xcode). That creates the cert + profile and registers the device; afterwards
+  `npx expo run:ios --device` works. When the 7-day profile expires, repeat the flagged build.
+- `ios/` is gitignored; the plugin + `appleTeamId` make both behaviors reproducible after every prebuild.
+
+## Navigation
+
+- `src/app/_layout.tsx` picks the tab bar by platform: **iOS → `NativeTabs`**
+  (`expo-router/unstable-native-tabs`), which renders the real system tab bar and gets Liquid Glass on
+  iOS 26+. **Android/web → `Tabs` (`expo-router/js-tabs`) with a custom `FloatingTabBar`**
+  (`src/components/floating-tab-bar.tsx`): an absolute pill with a Reanimated sliding indicator.
+- Do not mix `NativeTabs` and JS `Tabs` in the same tree. Keep additions inside the platform branches.
+- Bottom padding for the floating bar comes from `useTabBarClearance()` (exported by
+  `floating-tab-bar.tsx`). On iOS it returns the safe-area inset that already includes the native tab
+  bar; elsewhere it returns the floating-bar height. Screens apply it to their last scrollable/fixed
+  element.
+
+## Topics bottom sheet
+
+- Implemented with `@gorhom/bottom-sheet` (`BottomSheetModal` + `BottomSheetScrollView`). The root
+  `_layout.tsx` must wrap the tree in `GestureHandlerRootView` and `BottomSheetModalProvider`, or the
+  sheet silently never presents.
+- `@gorhom/bottom-sheet@5.2.14` is pinned. It is **not officially compatible** with Reanimated 4.3+
+  (issues gorhom#2696/#2721) and can silently fail to open on other setups; it was verified working
+  on SDK 57 / Reanimated 4.5, but if a sheet stops appearing, test that first. Do not bump it blindly.
+- Topics come back from the backend unordered/mixed by `categoria`; `topics-sheet.tsx` groups them and
+  orders categories via `CATEGORY_ORDER` (generales first).
 
 ## Conventions
 

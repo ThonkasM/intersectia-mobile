@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useTabBarClearance } from '@/components/floating-tab-bar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Badge, Button, Card, SectionHeader } from '@/components/ui';
@@ -22,12 +23,13 @@ import { useTheme } from '@/hooks/use-theme';
 export default function WelcomeScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const tabBarClearance = useTabBarClearance();
 
   return (
     <ThemedView style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingBottom: Spacing.six + tabBarClearance }]}
           showsVerticalScrollIndicator={false}>
           <View style={styles.brandRow}>
             <View style={[styles.logo, { borderColor: theme.accent }]}>
@@ -222,7 +224,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.six,
     gap: Spacing.six,
     maxWidth: MaxContentWidth,
     width: '100%',

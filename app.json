@@ -10,6 +10,7 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.intersectia.mobile",
+      "appleTeamId": "7MWYA8BMK6",
       "supportsTablet": true
     },
     "android": {
@@ -48,9 +49,13 @@
             "buildToolsVersion": "36.0.0",
             "minSdkVersion": 24,
             "usesCleartextTraffic": true
+          },
+          "ios": {
+            "enableSceneSupport": true
           }
         }
-      ]
+      ],
+      "./plugins/with-ios-signing"
     ],
     "experiments": {
       "typedRoutes": true,
