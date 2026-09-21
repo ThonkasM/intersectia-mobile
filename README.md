@@ -1,56 +1,93 @@
-# Welcome to your Expo app 👋
+# IntersectIA Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App de Expo (SDK 57) con dos pantallas:
 
-## Get started
+- **Inicio** — página de bienvenida que reúne el contenido de la landing de `intersectia-frontend`
+  (hero, qué es IoT, vehículos autónomos, relación IoT↔AV, caso de estudio, cómo funciona la demo, equipo).
+- **Asistente** — chatbot que consume el mismo endpoint que la web: `POST /ai/chat`.
 
-1. Install dependencies
+Stack: Expo Router (tabs) + TypeScript. No hay lógica de simulación aquí; la app solo muestra
+contenido y conversa con el backend NestJS.
 
-   ```bash
-   npm install
-   ```
+## Requisitos
 
-2. Start the app
+| Herramienta | Versión |
+| --- | --- |
+| Node.js | 22.13+ |
+| JDK | 17 (`JAVA_HOME` apuntando a él) |
+| Android SDK Platform | 36 |
+| Android Build-Tools | 36.0.0 |
+| Android NDK | 27.1.12297006 |
+| Gradle | 9.3.1 (lo baja el wrapper) |
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Variables de entorno:
 
 ```bash
-npm run reset-project
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Instalación
 
-### Other setup steps
+```bash
+npm install
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Configuración
 
-## Learn more
+El backend (NestJS) debe estar corriendo y accesible desde el dispositivo. La app lee la URL base de
+`EXPO_PUBLIC_API_URL`:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+cp .env.example .env
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Valores típicos:
 
-## Join the community
+- **Emulador Android:** `http://10.0.2.2:3000` (el host se ve como `10.0.2.2`, no `localhost`). Es
+  además el valor por defecto del código si no definís la variable.
+- **Dispositivo físico:** `http://<IP-LAN-de-tu-máquina>:3000`.
 
-Join our community of developers creating universal apps.
+`usesCleartextTraffic` está activado (vía `expo-build-properties`) para permitir HTTP en desarrollo.
+Desactivalo si vas a publicar y usás HTTPS.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Desarrollo
+
+```bash
+npm start          # Metro; luego 'a' para Android o escaneá el QR
+npm run android    # compila e instala en emulador/dispositivo (expo run:android)
+npm run typecheck  # tsc --noEmit
+```
+
+## Build local para Android (sin EAS)
+
+```bash
+# Generar/actualizar la carpeta nativa (android/ está en .gitignore)
+npm run prebuild:android
+
+# Build de debug (APK que carga el bundle desde Metro)
+npm run android
+
+# Build de release (APK autónomo, con el bundle embebido) — instala y corre con Metro
+npm run android:release
+
+# O directo con Gradle:
+cd android
+./gradlew assembleDebug     # android/app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleRelease   # android/app/build/outputs/apk/release/app-release.apk
+```
+
+Notas:
+
+- El `release` del template de Expo se firma con el **debug keystore**: instala y corre, pero **no
+  sirve para Play Store**. Configurá tu propio keystore antes de publicar.
+- Arquitectura nueva (Fabric/TurboModules) y Hermes están activados por defecto en SDK 57.
+- `expo prebuild` limpia `android/` por defecto; usá `--no-clean` (ya incluido en el script) para
+  conservar ediciones manuales.
+
+## Verificación hecha
+
+- `npx expo-doctor` → 21/21 checks OK.
+- `npm run typecheck` → sin errores.
+- `./gradlew assembleDebug` y `assembleRelease` → `BUILD SUCCESSFUL` con JDK 17 + SDK 36.

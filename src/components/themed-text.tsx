@@ -4,7 +4,16 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?:
+    | 'default'
+    | 'title'
+    | 'subtitle'
+    | 'heading'
+    | 'small'
+    | 'smallBold'
+    | 'eyebrow'
+    | 'link'
+    | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -17,11 +26,12 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
+        type === 'subtitle' && styles.subtitle,
+        type === 'heading' && styles.heading,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,
-        type === 'subtitle' && styles.subtitle,
+        type === 'eyebrow' && styles.eyebrow,
         type === 'link' && styles.link,
-        type === 'linkPrimary' && styles.linkPrimary,
         type === 'code' && styles.code,
         style,
       ]}
@@ -31,43 +41,51 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
-  small: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 500,
-  },
-  smallBold: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 700,
-  },
   default: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: 500,
+    fontWeight: '400',
   },
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontSize: 38,
+    lineHeight: 44,
+    fontWeight: '700',
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
+    fontSize: 26,
+    lineHeight: 32,
+    fontWeight: '700',
+  },
+  heading: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600',
+  },
+  small: {
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: '400',
+  },
+  smallBold: {
+    fontSize: 14,
+    lineHeight: 21,
+    fontWeight: '700',
+  },
+  eyebrow: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
   },
   link: {
-    lineHeight: 30,
     fontSize: 14,
-  },
-  linkPrimary: {
-    lineHeight: 30,
-    fontSize: 14,
-    color: '#3c87f7',
+    lineHeight: 20,
+    fontWeight: '600',
   },
   code: {
     fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: 700 }) ?? 500,
+    fontWeight: Platform.select({ android: '700' }) ?? '500',
     fontSize: 12,
   },
 });

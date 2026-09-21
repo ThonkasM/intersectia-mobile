@@ -1,26 +1,35 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    background: '#f7f8fa',
+    surface: 'rgba(11, 21, 38, 0.04)',
+    surfaceStrong: 'rgba(11, 21, 38, 0.08)',
+    border: 'rgba(11, 21, 38, 0.12)',
+    borderStrong: 'rgba(11, 21, 38, 0.24)',
+    text: '#0b1526',
+    textSecondary: 'rgba(11, 21, 38, 0.66)',
+    textFaint: 'rgba(11, 21, 38, 0.48)',
+    accent: '#b45309',
+    accentText: '#b45309',
+    accentContrast: '#ffffff',
+    emerald: '#047857',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    background: '#0a0e14',
+    surface: 'rgba(255, 255, 255, 0.04)',
+    surfaceStrong: 'rgba(255, 255, 255, 0.08)',
+    border: 'rgba(255, 255, 255, 0.1)',
+    borderStrong: 'rgba(255, 255, 255, 0.2)',
+    text: '#e6e9ef',
+    textSecondary: 'rgba(230, 233, 239, 0.62)',
+    textFaint: 'rgba(230, 233, 239, 0.42)',
+    accent: '#f5a623',
+    accentText: '#fcd34d',
+    accentContrast: '#0a0e14',
+    emerald: '#34d399',
   },
 } as const;
 
@@ -28,13 +37,9 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -61,5 +66,12 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  pill: 999,
+} as const;
+
+export const MaxContentWidth = 720;
