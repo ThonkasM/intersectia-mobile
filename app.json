@@ -11,7 +11,12 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.intersectia.mobile",
       "appleTeamId": "7MWYA8BMK6",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "package": "com.intersectia.mobile",
