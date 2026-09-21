@@ -162,15 +162,16 @@ export default function WelcomeScreen() {
           <Section eyebrow="Equipo" title="Quiénes lo construyen.">
             <View style={styles.grid}>
               {TEAM.map((member) => (
-                <Card key={member.name} style={styles.gridItem}>
-                  <View style={[styles.avatar, { borderColor: theme.accent }]}>
-                    <ThemedText type="smallBold" themeColor="accentText">
-                      {member.initials}
-                    </ThemedText>
-                  </View>
-                  <ThemedText type="smallBold">{member.name}</ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {member.role}
+                <Card
+                  key={`${member.apellido}-${member.nombre}`}
+                  style={styles.teamItem}>
+                  <Image
+                    source={member.photo}
+                    style={styles.avatarImage}
+                    resizeMode="cover"
+                  />
+                  <ThemedText type="smallBold" style={styles.teamName}>
+                    {member.apellido} {member.nombre}
                   </ThemedText>
                 </Card>
               ))}
@@ -272,13 +273,18 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.one,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.pill,
-    borderWidth: 1,
+  teamItem: {
+    flexGrow: 1,
+    flexBasis: 140,
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  avatarImage: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.pill,
+  },
+  teamName: {
+    textAlign: 'center',
   },
   footer: {
     borderTopWidth: StyleSheet.hairlineWidth,

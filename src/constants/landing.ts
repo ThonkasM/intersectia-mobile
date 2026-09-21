@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from 'react-native';
+
 export const BRAND = {
   name: 'IntersectIA',
   tagline: 'IoT y vehículos autónomos en una intersección que se gestiona sola.',
@@ -131,11 +133,36 @@ export const DEMO_STEPS: DemoStep[] = [
   },
 ];
 
-export type TeamMember = { name: string; role: string; initials: string };
+export type TeamMember = {
+  apellido: string;
+  nombre: string;
+  photo: ImageSourcePropType;
+};
 
 export const TEAM: TeamMember[] = [
-  { name: 'Integrante 1', role: 'Frontend / Three.js', initials: 'I1' },
-  { name: 'Integrante 2', role: 'Backend / Simulación', initials: 'I2' },
-  { name: 'Integrante 3', role: 'Arquitectura IoT / WebSocket', initials: 'I3' },
-  { name: 'Integrante 4', role: 'Investigación / IA', initials: 'I4' },
+  {
+    apellido: 'Arteaga',
+    nombre: 'Miguel',
+    photo: require('@/assets/equipo/Arteaga-Miguel.jpeg'),
+  },
+  {
+    apellido: 'Caballero',
+    nombre: 'Cesar',
+    photo: require('@/assets/equipo/Caballero-Cesar.jpeg'),
+  },
+  {
+    apellido: 'Carvajal',
+    nombre: 'Jorge',
+    photo: require('@/assets/equipo/Carvajal-Jorge.jpeg'),
+  },
+  {
+    apellido: 'Veslasquez',
+    nombre: 'Arnulfo',
+    photo: require('@/assets/equipo/Veslasquez-Arnulfo.jpeg'),
+  },
+  {
+    apellido: 'Yebara',
+    nombre: 'Diego',
+    photo: require('@/assets/equipo/Yebara-Diego.jpeg'),
+  },
 ];

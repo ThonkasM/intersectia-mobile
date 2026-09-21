@@ -5,8 +5,16 @@ import {
   BottomSheetModal,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import { forwardRef, useCallback, useMemo } from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
@@ -31,6 +39,82 @@ export type TopicsSheetProps = {
   topics: ChatTopic[];
   onSelect: (titulo: string) => void;
 };
+
+function TopicGroup({
+  label,
+  items,
+  onSelect,
+}: {
+  label: string;
+  items: ChatTopic[];
+  onSelect: (titulo: string) => void;
+}) {
+  const theme = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  const rotation = useSharedValue(0);
+
+  const toggle = useCallback(() => {
+    const next = !expanded;
+    setExpanded(next);
+    rotation.value = withTiming(next ? 1 : 0, { duration: 180 });
+  }, [expanded, rotation]);
+
+  const chevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value * 90}deg` }],
+  }));
+
+  return (
+    <View style={styles.group}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={label}
+        onPress={toggle}
+        style={({ pressed }) => [styles.groupHeader, { opacity: pressed ? 0.7 : 1 }]}>
+        <ThemedText type="eyebrow" themeColor="accentText">
+          {label}
+        </ThemedText>
+        <View style={styles.groupHeaderRight}>
+          <ThemedText type="code" themeColor="textFaint">
+            {items.length}
+          </ThemedText>
+          <Animated.View style={chevronStyle}>
+            <Ionicons name="chevron-forward" size={16} color={theme.textFaint} />
+          </Animated.View>
+        </View>
+      </Pressable>
+
+      {expanded ? (
+        <Animated.View
+          layout={LinearTransition.duration(200)}
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(120)}
+          style={styles.items}>
+          {items.map((topic) => (
+            <Pressable
+              key={topic.slug}
+              accessibilityRole="button"
+              accessibilityLabel={topic.titulo}
+              onPress={() => onSelect(topic.titulo)}
+              style={({ pressed }) => [
+                styles.item,
+                {
+                  borderColor: theme.border,
+                  backgroundColor: theme.surface,
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}>
+              <ThemedText type="default" style={styles.itemText}>
+                {topic.titulo}
+              </ThemedText>
+              <Ionicons name="chevron-forward" size={16} color={theme.textFaint} />
+            </Pressable>
+          ))}
+        </Animated.View>
+      ) : null}
+    </View>
+  );
+}
 
 export const TopicsSheet = forwardRef<BottomSheetModal, TopicsSheetProps>(
   function TopicsSheet({ topics, onSelect }, ref) {
@@ -81,33 +165,12 @@ export const TopicsSheet = forwardRef<BottomSheetModal, TopicsSheetProps>(
           </View>
 
           {groups.map((group) => (
-            <View key={group.categoria} style={styles.group}>
-              <ThemedText type="eyebrow" themeColor="accentText">
-                {CATEGORY_LABELS[group.categoria] ?? group.categoria}
-              </ThemedText>
-              <View style={styles.items}>
-                {group.items.map((topic) => (
-                  <Pressable
-                    key={topic.slug}
-                    accessibilityRole="button"
-                    accessibilityLabel={topic.titulo}
-                    onPress={() => onSelect(topic.titulo)}
-                    style={({ pressed }) => [
-                      styles.item,
-                      {
-                        borderColor: theme.border,
-                        backgroundColor: theme.surface,
-                        opacity: pressed ? 0.7 : 1,
-                      },
-                    ]}>
-                    <ThemedText type="default" style={styles.itemText}>
-                      {topic.titulo}
-                    </ThemedText>
-                    <Ionicons name="chevron-forward" size={16} color={theme.textFaint} />
-                  </Pressable>
-                ))}
-              </View>
-            </View>
+            <TopicGroup
+              key={group.categoria}
+              label={CATEGORY_LABELS[group.categoria] ?? group.categoria}
+              items={group.items}
+              onSelect={onSelect}
+            />
           ))}
         </BottomSheetScrollView>
       </BottomSheetModal>
@@ -125,6 +188,17 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   group: {
+    gap: Spacing.two,
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.one,
+  },
+  groupHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.two,
   },
   items: {
