@@ -8,7 +8,6 @@
     "scheme": "intersectiamobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.intersectia.mobile",
       "appleTeamId": "7MWYA8BMK6",
       "supportsTablet": true,
@@ -26,7 +25,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#0a0e14",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
@@ -42,7 +40,7 @@
         {
           "backgroundColor": "#0a0e14",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 150
         }
       ],
       [

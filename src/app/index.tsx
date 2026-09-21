@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTabBarClearance } from '@/components/floating-tab-bar';
@@ -32,9 +32,10 @@ export default function WelcomeScreen() {
           contentContainerStyle={[styles.content, { paddingBottom: Spacing.six + tabBarClearance }]}
           showsVerticalScrollIndicator={false}>
           <View style={styles.brandRow}>
-            <View style={[styles.logo, { borderColor: theme.accent }]}>
-              <View style={[styles.logoDot, { backgroundColor: theme.accent }]} />
-            </View>
+            <Image
+              source={require('@/assets/icons/intersectia-mark.png')}
+              style={styles.logoImage}
+            />
             <ThemedText type="heading">
               {BRAND.name.slice(0, -2)}
               <ThemedText type="heading" themeColor="accentText">
@@ -235,19 +236,9 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingTop: Spacing.three,
   },
-  logo: {
-    width: 22,
-    height: 22,
-    borderWidth: 2,
-    borderRadius: Radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '45deg' }],
-  },
-  logoDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 2,
+  logoImage: {
+    width: 30,
+    height: 30,
   },
   hero: {
     gap: Spacing.three,
