@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTabBarClearance } from '@/components/floating-tab-bar';
 import { ThemedText } from '@/components/themed-text';
@@ -24,12 +24,20 @@ export default function WelcomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const tabBarClearance = useTabBarClearance();
+  const insets = useSafeAreaInsets();
+  // En Android (edge-to-edge) el viewport debe terminar por encima de la barra del
+  // sistema, si no el contenido se ve detrás de ella. En iOS, NativeTabs ya inseta.
+  const isAndroid = Platform.OS === 'android';
+  const bottomInset = isAndroid ? insets.bottom : 0;
 
   return (
     <ThemedView style={styles.root}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={styles.safeArea} edges={isAndroid ? ['top', 'bottom'] : ['top']}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: Spacing.six + tabBarClearance }]}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: Spacing.six + tabBarClearance - bottomInset },
+          ]}
           showsVerticalScrollIndicator={false}>
           <View style={styles.brandRow}>
             <Image
