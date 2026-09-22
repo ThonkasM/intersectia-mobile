@@ -25,6 +25,10 @@ function NativeTabLayout() {
         />
         <NativeTabs.Trigger.Label>Asistente</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="demo">
+        <NativeTabs.Trigger.Icon sf={{ default: 'cube', selected: 'cube.fill' }} />
+        <NativeTabs.Trigger.Label>Demo</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
@@ -36,6 +40,7 @@ function FloatingTabLayout() {
       screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Inicio' }} />
       <Tabs.Screen name="asistente" options={{ title: 'Asistente' }} />
+      <Tabs.Screen name="demo" options={{ title: 'Demo' }} />
     </Tabs>
   );
 }

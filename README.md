@@ -1,12 +1,14 @@
 # IntersectIA Mobile
 
-App de Expo (SDK 57) con dos pantallas:
+App de Expo (SDK 57) con tres pantallas:
 
 - **Inicio** — página de bienvenida que reúne el contenido de la landing de `intersectia-frontend`
   (hero, qué es IoT, vehículos autónomos, relación IoT↔AV, caso de estudio, cómo funciona la demo, equipo).
 - **Asistente** — chatbot que consume el mismo endpoint que la web: `POST /ai/chat`. Los temas
   sugeridos (`GET /ai/chat/topics`) se eligen en una bottom sheet scrolleable agrupada por categoría
   (`@gorhom/bottom-sheet`).
+- **Demo** — la demo 3D (Three.js) de la landing embebida con `react-native-webview` en
+  `http://32.195.104.167/demo` (configurable con `EXPO_PUBLIC_DEMO_URL`).
 
 Stack: Expo Router (tabs) + TypeScript. No hay lógica de simulación aquí; la app solo muestra
 contenido y conversa con el backend NestJS.

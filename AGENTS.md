@@ -10,7 +10,7 @@ This project is **Expo SDK 57** (React Native 0.86, React 19.2, new architecture
 A thin Expo Router app that mirrors the IntersectIA landing and talks to the NestJS backend. It has
 **no simulation logic**; the backend is the source of truth (`../intersectia-backend`).
 
-Two tab routes:
+Three tab routes:
 
 - `src/app/index.tsx` — welcome/landing content, sourced from `src/constants/landing.ts`
   (port of `../intersectia-frontend/components/sections/*`). The frontend remains the canonical copy.
@@ -18,6 +18,9 @@ Two tab routes:
   portable `src/lib/chat/` client (`client.ts`, `session.ts`, `types.ts`) — same design as
   `intersectia-frontend/lib/chat`, so the two can be diffed side by side. Topic suggestions live in a
   bottom sheet (`src/components/topics-sheet.tsx`), grouped by `categoria` and scrollable.
+- `src/app/demo.tsx` — the Three.js demo embedded in a `react-native-webview` (native module). URL from
+  `DEMO_URL` in `src/constants/config.ts` (`EXPO_PUBLIC_DEMO_URL`, default `{API_URL}/demo`). Loads the
+  deployed frontend so socket.io works same-origin; external links open in the system browser.
 
 ## Commands
 

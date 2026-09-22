@@ -27,6 +27,7 @@ type IoniconName = keyof typeof Ionicons.glyphMap;
 const TAB_META: Record<string, { icon: IoniconName; label: string }> = {
   index: { icon: 'home-outline', label: 'Inicio' },
   asistente: { icon: 'chatbubble-ellipses-outline', label: 'Asistente' },
+  demo: { icon: 'cube-outline', label: 'Demo' },
 };
 
 const BAR_PADDING = 6;
