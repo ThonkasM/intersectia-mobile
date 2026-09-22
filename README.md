@@ -8,7 +8,7 @@ App de Expo (SDK 57) con tres pantallas:
   sugeridos (`GET /ai/chat/topics`) se eligen en una bottom sheet scrolleable agrupada por categoría
   (`@gorhom/bottom-sheet`).
 - **Demo** — la demo 3D (Three.js) de la landing embebida con `react-native-webview` en
-  `http://32.195.104.167/demo` (configurable con `EXPO_PUBLIC_DEMO_URL`).
+  `https://d18bljllhxk5n7.cloudfront.net/demo` (configurable con `EXPO_PUBLIC_DEMO_URL`).
 
 Stack: Expo Router (tabs) + TypeScript. No hay lógica de simulación aquí; la app solo muestra
 contenido y conversa con el backend NestJS.

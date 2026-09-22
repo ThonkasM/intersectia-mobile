@@ -9,7 +9,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://32.195.104.167"
+        "EXPO_PUBLIC_API_URL": "https://d18bljllhxk5n7.cloudfront.net",
+        "EXPO_PUBLIC_DEMO_URL": "https://d18bljllhxk5n7.cloudfront.net/demo"
       }
     }
   }
