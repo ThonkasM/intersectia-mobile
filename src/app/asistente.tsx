@@ -5,13 +5,13 @@ import {
   ActivityIndicator,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTabBarClearance } from '@/components/floating-tab-bar';
@@ -146,7 +146,7 @@ export default function AssistantScreen() {
 
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={0}>
           <FlatList
             ref={listRef}
@@ -204,7 +204,7 @@ export default function AssistantScreen() {
               styles.composer,
               {
                 borderTopColor: theme.border,
-                marginBottom: Platform.OS === 'ios' && keyboardVisible ? 0 : tabBarClearance,
+                marginBottom: keyboardVisible ? 0 : tabBarClearance,
               },
             ]}>
             <TextInput

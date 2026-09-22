@@ -20,7 +20,9 @@
     "android": {
       "package": "com.intersectia.mobile",
       "versionCode": 1,
-      "permissions": ["android.permission.INTERNET"],
+      "permissions": [
+        "android.permission.INTERNET"
+      ],
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#0a0e14",
@@ -63,6 +65,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7f1c5f80-dd50-4331-819e-460834dfd35d"
+      }
+    },
+    "owner": "thonkasm"
   }
 }

@@ -5,6 +5,7 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { DynamicColorIOS, Platform, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import FloatingTabBar from '@/components/floating-tab-bar';
 import { Colors } from '@/constants/theme';
@@ -45,12 +46,14 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-          <StatusBar style={isDark ? 'light' : 'dark'} />
-          {Platform.OS === 'ios' ? <NativeTabLayout /> : <FloatingTabLayout />}
-        </ThemeProvider>
-      </BottomSheetModalProvider>
+      <KeyboardProvider>
+        <BottomSheetModalProvider>
+          <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+            <StatusBar style={isDark ? 'light' : 'dark'} />
+            {Platform.OS === 'ios' ? <NativeTabLayout /> : <FloatingTabLayout />}
+          </ThemeProvider>
+        </BottomSheetModalProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }
