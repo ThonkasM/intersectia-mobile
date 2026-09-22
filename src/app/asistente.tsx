@@ -15,6 +15,7 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTabBarClearance } from '@/components/floating-tab-bar';
+import { MarkdownText } from '@/components/markdown-text';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TopicsSheet } from '@/components/topics-sheet';
@@ -265,9 +266,13 @@ function Bubble({ message }: { message: ChatMessage }) {
             borderColor: theme.border,
           },
         ]}>
-        <ThemedText type="small" style={{ color: isUser ? theme.accentContrast : theme.text }}>
-          {message.text}
-        </ThemedText>
+        {isUser ? (
+          <ThemedText type="small" style={{ color: theme.accentContrast }}>
+            {message.text}
+          </ThemedText>
+        ) : (
+          <MarkdownText text={message.text} style={{ color: theme.text }} />
+        )}
       </View>
     </View>
   );
