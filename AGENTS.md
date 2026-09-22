@@ -37,6 +37,10 @@ Three tab routes:
   POSTs to `${API_URL}/ai/chat` with `{ message, sessionId }` → `{ answer }`, and GETs
   `${API_URL}/ai/chat/topics` for the topics sheet.
 - Default when unset: Android `http://10.0.2.2:3000` (emulator → host), else `http://localhost:3000`.
+- **EAS builds use EAS Environment Variables**, not the repo. The values live in the `production`
+  environment (`eas env:list --environment production`); `eas.json`'s `deployed` profile only sets
+  `environment: "production"` (no inline `env`). Build with `--profile deployed`. Change a URL with
+  `eas env:set` — no code change. `.env` is gitignored and used only for local `expo run:*` builds.
 - Cleartext HTTP is enabled in `app.json` via `expo-build-properties` for local dev; disable for
   production HTTPS.
 - `ios.enableSceneSupport: true` (same plugin) is **required** to launch on iOS 27 / Xcode 27 (UIKit

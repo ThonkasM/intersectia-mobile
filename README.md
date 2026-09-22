@@ -97,6 +97,26 @@ Notas:
 - `expo prebuild` limpia `android/` por defecto; usá `--no-clean` (ya incluido en el script) para
   conservar ediciones manuales.
 
+## EAS build (Android, APK)
+
+La URL del backend y de la demo vienen de **EAS Environment Variables** (environment `production`),
+no del repo. El perfil `deployed` de `eas.json` sólo referencia `environment: "production"`.
+
+```bash
+eas build --platform android --profile deployed --local \
+  --output ./builds/intersectia-mobile-deployed.apk
+```
+
+- Ver/cambiar valores sin tocar código:
+  ```bash
+  eas env:list --environment production
+  eas env:set --environment production --name EXPO_PUBLIC_API_URL \
+    --value https://<cloudfront> --visibility plaintext
+  ```
+- **Siempre** pasá `--profile deployed`; otro perfil no carga este environment y la app caería al
+  fallback (`10.0.2.2`/`localhost`).
+- `.env` es para desarrollo local (`expo run:*`); no se sube a EAS (está gitignoreado).
+
 ## Build local para iOS
 
 Requiere macOS con **Xcode 26+** (en Xcode 27 / SDK iOS 27 el ciclo de vida `UIScene` es obligatorio).
