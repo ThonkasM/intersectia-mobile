@@ -2,7 +2,9 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { DynamicColorIOS, Platform, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -48,6 +50,11 @@ function FloatingTabLayout() {
 export default function RootLayout() {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    ScreenOrientation.unlockAsync().catch(() => undefined);
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

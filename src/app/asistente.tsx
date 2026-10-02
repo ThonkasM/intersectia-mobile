@@ -20,7 +20,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TopicsSheet } from '@/components/topics-sheet';
 import { API_URL } from '@/constants/config';
-import { Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useChat } from '@/hooks/use-chat';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -114,7 +114,7 @@ export default function AssistantScreen() {
   return (
     <ThemedView style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={[styles.header, { borderBottomColor: theme.border }]}>
+        <View style={[styles.header, styles.centered, { borderBottomColor: theme.border }]}>
           <View style={styles.headerText}>
             <ThemedText type="heading">Asistente IntersectIA</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
@@ -155,7 +155,7 @@ export default function AssistantScreen() {
             renderItem={({ item }) => <Bubble message={item} />}
             keyExtractor={(_, index) => String(index)}
             style={styles.flex}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, styles.centered]}
             onContentSizeChange={scrollToEnd}
             keyboardShouldPersistTaps="handled"
             ListFooterComponent={
@@ -203,6 +203,7 @@ export default function AssistantScreen() {
           <View
             style={[
               styles.composer,
+              styles.centered,
               {
                 borderTopColor: theme.border,
                 marginBottom: keyboardVisible ? 0 : tabBarClearance,
@@ -287,6 +288,11 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  centered: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
